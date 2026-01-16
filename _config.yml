@@ -70,9 +70,6 @@ homepage:
     show_parish_list: True
     parish_map_type: 'interactive'
     # parish_map_type: 'static'
-    static_map_url: 
-      webp: 'https://2431ocpstorage.blob.core.windows.net/production-anonymous-container/2431/map_images/Alhambra_google_maps_static_map.webp'
-      jpg:  'https://2431ocpstorage.blob.core.windows.net/production-anonymous-container/2431/map_images/Alhambra_google_maps_static_map.jpg'
 
 snow_effect:
   enabled: True
