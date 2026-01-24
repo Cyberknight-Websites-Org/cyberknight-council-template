@@ -4,7 +4,7 @@
 COUNCIL_NUMBER=${1:-2431}
 KOC_URL=${2:-https://secure.cyberknight-websites.com}
 PORT=${3:-4000}
-HOST="0.0.0.0"
+HOST="127.0.0.1"
 
 # Step 1: Display startup info
 echo "========================================="

@@ -18,8 +18,8 @@ The server will be accessible at: `http://council-test.cyberknight-websites.com`
 ## Configuration Details
 
 ### Network Binding
-The Jekyll server binds to `0.0.0.0:4000` (jekyll_serve_dev.sh:7) to allow nginx to proxy requests:
-- **Host**: `0.0.0.0` - Accepts connections from all network interfaces
+The Jekyll server binds to `127.0.0.1:4000` (jekyll_serve_dev.sh:7) to allow nginx to proxy requests:
+- **Host**: `127.0.0.1` - Accepts connections only from localhost (more secure)
 - **Port**: `4000` - Default development port
 
 ### Nginx Reverse Proxy
