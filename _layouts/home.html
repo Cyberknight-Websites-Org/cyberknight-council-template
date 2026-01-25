@@ -95,9 +95,9 @@ layout: default
                 {% elsif site.homepage.parishes.parish_map_type == "static" %}
                 <div class="homepage-map">
                     <picture>
-                        <source srcset="{{ site.homepage.parishes.static_map_url.webp }}"
+                        <source srcset="{{ site.data.all_council_info_data.council_website_settings.google_maps_static_map_url.webp }}"
                                 type="image/webp" />
-                        <img src="{{ site.homepage.parishes.static_map_url.jpg }}"
+                        <img src="{{ site.data.all_council_info_data.council_website_settings.google_maps_static_map_url.jpg }}"
                              alt="Map of parish locations"
                              class="static-map-image" />
                     </picture>

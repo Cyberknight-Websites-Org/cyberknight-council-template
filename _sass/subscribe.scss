@@ -1,0 +1,175 @@
+// Newsletter subscription form styles
+.newsletter-subscribe-form {
+  margin: 2rem auto;
+  max-width: 34rem;
+}
+
+.form-container {
+  background: var(--card-color);
+  border-radius: 1.6rem;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease-out;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--headings);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--highlight);
+    border-radius: 0.8rem;
+    font-size: 16px; // Prevents iOS zoom on focus
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: var(--text);
+      opacity: 0.5;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--link-underline);
+      box-shadow: 0 0 0 3px rgba(124, 38, 29, 0.1);
+    }
+
+    // Only show invalid state after user has entered something
+    &:invalid:not(:placeholder-shown) {
+      border-color: #dc3545;
+    }
+
+    &:invalid:not(:placeholder-shown):focus {
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+  }
+
+  .field-hint {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    opacity: 0.7;
+  }
+}
+
+.required-indicator {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: var(--topbar-link-background);
+  color: white;
+  border: none;
+  border-radius: 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  min-height: 44px; // Touch-friendly size
+  margin-top: 0.5rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(144, 61, 34, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(144, 61, 34, 0.3);
+  }
+}
+
+.required-legend {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.7;
+  text-align: center;
+}
+
+// Honeypot field - hide off-screen
+.honeypot-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+// Feedback message container
+.newsletter-feedback {
+  display: none;
+  margin: 1.5rem auto 0;
+  max-width: 34rem;
+  padding: 1rem 1.5rem;
+  border-radius: 0.8rem;
+  font-size: 1rem;
+  line-height: 1.5;
+
+  &.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  &.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+}
+
+// Dark theme support for feedback
+[data-theme="dark"] {
+  .newsletter-feedback {
+    &.success {
+      background-color: #1e4620;
+      color: #d4edda;
+      border-color: #2d6a31;
+    }
+
+    &.error {
+      background-color: #5a1f23;
+      color: #f8d7da;
+      border-color: #7d2d33;
+    }
+  }
+}
+
+// Button disabled state
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+// Responsive adjustments
+@media (max-width: 800px) {
+  .form-container {
+    padding: 1.5rem 1rem;
+  }
+}

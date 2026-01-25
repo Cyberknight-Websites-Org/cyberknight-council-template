@@ -4,3 +4,61 @@ layout: default
 
 <h1 class="post-title">{{ page.title }}</h1>
 {{ content }}
+
+<form class="newsletter-subscribe-form" action="#" method="POST">
+  <div class="form-container">
+    <div class="form-group">
+      <label for="email">Email Address <span class="required-indicator">*</span></label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        autocomplete="email"
+        aria-required="true"
+        aria-describedby="email-hint"
+        placeholder="your.email@example.com"
+      />
+      <span id="email-hint" class="field-hint">We'll send newsletter updates to this address</span>
+    </div>
+
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        autocomplete="name"
+        aria-describedby="name-hint"
+        placeholder="John Doe"
+      />
+      <span id="name-hint" class="field-hint">Optional - helps us personalize your newsletter</span>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        autocomplete="tel"
+        aria-describedby="phone-hint"
+        pattern="[\(\)\s\-0-9]+"
+        placeholder="(555) 123-4567"
+      />
+      <span id="phone-hint" class="field-hint">Optional - for urgent council notifications</span>
+    </div>
+
+    <!-- Honeypot field - hide with positioning, not display:none -->
+    <div class="honeypot-field" aria-hidden="true">
+      <label for="is_human">Check this if you're human</label>
+      <input type="checkbox" id="is_human" name="is_human" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button type="submit" class="submit-button">Subscribe to Newsletter</button>
+
+    <p class="required-legend"><span class="required-indicator">*</span> Required field</p>
+  </div>
+</form>
+
+<div id="newsletter-feedback" class="newsletter-feedback" role="status" aria-live="polite"></div>

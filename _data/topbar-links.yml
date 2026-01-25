@@ -8,6 +8,8 @@
   url: /posts
 - title: Join
   url: /join
+- title: Subscribe
+  url: /subscribe
 - title: Members
   url: /members
 - title: Login

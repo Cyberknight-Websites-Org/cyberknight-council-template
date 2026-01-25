@@ -5,6 +5,7 @@ require 'tzinfo'
 require 'time'
 
 begin
+  script_start_time = Time.now
   options = {}
   OptionParser.new do |opts|
     opts.banner = 'Usage: sync_data.rb [options]'
@@ -21,14 +22,17 @@ begin
   council_number = options[:council_number] || 2431
   kocp_url = options[:kocp_url] || 'http://127.0.0.1'
 
+  api_start = Time.now
   all_council_info_api_url = "#{kocp_url}/public_api/get_all_council_info/#{council_number}"
-  all_council_info_api_response = URI.open(all_council_info_api_url).read
+  all_council_info_api_response = URI.open(all_council_info_api_url, read_timeout: 10, open_timeout: 5).read
   all_council_info_data = JSON.parse(all_council_info_api_response)
+  api_duration = Time.now - api_start
+
   File.open('_data/all_council_info_data.json', 'w') do |f|
     f.write(all_council_info_data.to_json)
   end
 
-  puts "Synced all council #{council_number} data to _data/all_council_info_data.json"
+  puts "Synced all council #{council_number} data to _data/all_council_info_data.json (API call took #{api_duration.round(2)}s)"
 
   website_tz = 'US/Pacific'
   tz = TZInfo::Timezone.get(website_tz)
@@ -244,13 +248,18 @@ begin
     config_content = File.read(config_path)
 
     council_site_url = all_council_info_data['council_website_settings']['website_url']
-    updated_content = config_content.gsub(/COUNCIL_SITE_URL/, council_site_url)
+    updated_content = config_content.gsub(/^url: .*$/, "url: #{council_site_url}")
 
     File.write(config_path, updated_content)
     puts "Updated #{config_path}"
   else
     puts "Warning: #{config_path} not found, skipping config update."
   end
+
+  total_duration = Time.now - script_start_time
+  puts "\n=== sync_data.rb completed in #{total_duration.round(2)}s ==="
 rescue StandardError => e
-  puts "An error occurred: #{e.message}"
+  puts "ERROR: sync_data.rb failed: #{e.message}"
+  puts e.backtrace.first(5).join("\n") if e.backtrace
+  exit 1
 end
