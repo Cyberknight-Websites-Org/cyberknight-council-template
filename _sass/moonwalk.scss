@@ -291,8 +291,14 @@ div.post-gallery-box {
   gap: 1rem;
   .post-gallery-item {
     max-width: 80vw;
-    width: 18rem;
+    width: fit-content;
+    max-width: 18rem;
+    picture {
+      display: block;
+      width: fit-content;
+    }
     img {
+      margin: 0;
       border-radius: 0.5rem;
       box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
     }
