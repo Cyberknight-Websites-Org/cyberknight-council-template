@@ -134,9 +134,9 @@ p code, li code {
   color: var(--code-text);
   font-weight: bold;
 }
-.post-title {
-  margin-bottom:-1.5rem;
-}
+// .post-title {
+//   margin-bottom:-1.5rem;
+// }
 .project-title {
   margin-bottom: 0.8rem;
 }
@@ -245,6 +245,45 @@ ul {
   }
 }
 
+// Post metadata styling (matching announcement style)
+p.post-created-by,
+p.post-last-edited {
+  font-size: 1.4rem;
+  margin: 0rem 0;
+}
+
+// Post content box styling (matching announcement content box)
+div.post-content {
+  margin: 3rem auto;
+  padding: 2rem 1.5rem;
+  max-width: 90%;
+  border-radius: 1.6rem;
+  background-color: var(--card-color);
+  box-shadow: 0 0.5rem 1rem 0.5rem rgba(0, 0, 0, 0.1);
+
+  .post-content-inner {
+    a, p {
+      word-wrap: break-word;
+    }
+  }
+}
+
+// Post gallery box styling (matching content box)
+div.post-gallery-box {
+  margin: 3rem auto;
+  padding: 2rem 1.5rem;
+  max-width: 90%;
+  border-radius: 1.6rem;
+  background-color: var(--card-color);
+  box-shadow: 0 0.5rem 1rem 0.5rem rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin: 1rem 0 1rem;
+    font-size: 1.6rem;
+    color: var(--text-secondary);
+  }
+}
+
 .post-gallery-grid {
   display: flex;
   flex-wrap: wrap;
@@ -252,8 +291,14 @@ ul {
   gap: 1rem;
   .post-gallery-item {
     max-width: 80vw;
-    width: 18rem;
+    width: fit-content;
+    max-width: 18rem;
+    picture {
+      display: block;
+      width: fit-content;
+    }
     img {
+      margin: 0;
       border-radius: 0.5rem;
       box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
     }
