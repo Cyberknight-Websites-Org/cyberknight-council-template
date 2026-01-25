@@ -3,7 +3,10 @@ layout: default
 ---
 
 <h1 class="post-title">{{ page.title }}</h1>
+
+<div class="subscribe-content">
 {{ content }}
+</div>
 
 <form class="newsletter-subscribe-form" action="#" method="POST">
   <div class="form-container">
@@ -19,7 +22,7 @@ layout: default
         aria-describedby="email-hint"
         placeholder="your.email@example.com"
       />
-      <span id="email-hint" class="field-hint">We'll send newsletter updates to this address</span>
+      <span id="email-hint" class="field-hint">We'll send council emails to this address</span>
     </div>
 
     <div class="form-group">
@@ -32,7 +35,7 @@ layout: default
         aria-describedby="name-hint"
         placeholder="John Doe"
       />
-      <span id="name-hint" class="field-hint">Optional - helps us personalize your newsletter</span>
+      <span id="name-hint" class="field-hint">Optional - helps us know who you are</span>
     </div>
 
     <div class="form-group">
@@ -46,11 +49,10 @@ layout: default
         pattern="[\(\)\s\-0-9]+"
         placeholder="(555) 123-4567"
       />
-      <span id="phone-hint" class="field-hint">Optional - for urgent council notifications</span>
+      <span id="phone-hint" class="field-hint">Optional - We'll send council texts to this number</span>
     </div>
 
-    <!-- Honeypot field - hide with positioning, not display:none -->
-    <div class="honeypot-field" aria-hidden="true">
+    <div class="is-human-field" aria-hidden="true">
       <label for="is_human">Check this if you're human</label>
       <input type="checkbox" id="is_human" name="is_human" tabindex="-1" autocomplete="off">
     </div>

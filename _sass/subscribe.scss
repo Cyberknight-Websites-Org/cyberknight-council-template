@@ -111,8 +111,7 @@
   text-align: center;
 }
 
-// Honeypot field - hide off-screen
-.honeypot-field {
+.is-human-field {
   position: absolute;
   left: -9999px;
   width: 1px;

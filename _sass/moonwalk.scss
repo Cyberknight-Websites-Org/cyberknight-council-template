@@ -284,6 +284,16 @@ div.post-gallery-box {
   }
 }
 
+// Subscribe page content styling (matching post content box)
+div.subscribe-content {
+  margin: 3rem auto;
+  padding: 2rem 1.5rem;
+  max-width: 90%;
+  border-radius: 1.6rem;
+  background-color: var(--card-color);
+  box-shadow: 0 0.5rem 1rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
 .post-gallery-grid {
   display: flex;
   flex-wrap: wrap;
