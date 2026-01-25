@@ -6,13 +6,10 @@ description: Stay informed with updates from our Knights of Columbus Council. Su
 
 ## Stay Connected with Our Council
 
-Join our mailing list to receive regular updates about council activities, upcoming events, volunteer opportunities, and important announcements. Our newsletter is a great way to stay engaged with the Knights of Columbus community.
+ Our newsletter is a great way to stay engaged with our council, event if you're not a member!
 
 ### What You'll Receive:
 
-- **Event Announcements**: Be the first to know about upcoming council meetings, social events, and community service opportunities
-- **Community News**: Stay informed about our charitable initiatives and their impact in our community
-- **Monthly Updates**: Regular newsletters featuring council highlights, member spotlights, and important dates
-- **Exclusive Information**: Special announcements and opportunities for newsletter subscribers
-
-We respect your privacy and will never share your information with third parties. You can unsubscribe at any time.
+- **Announcement Emails**: Be aware about upcoming council events, calls for help, and be more in the loop 
+- **Monthly Newsletters**: Monthly email newsletters featuring our meeting schedule, upcoming events, recent website posts, and a link to the newest Columbia magazine issue.
+- **(If You Include Your Phone Number) Announcement Texts**: Infrequent texts with urgent council information such as events happening the next day.
