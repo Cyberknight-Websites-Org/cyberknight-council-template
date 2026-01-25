@@ -3,46 +3,20 @@ layout: default
 ---
 
 <h1 class="post-title">{{ page.title }}</h1>
-{% if page.tags.size > 0 %}
-    <div style="display: inline-flex; flex-wrap: wrap;">
-        <span style="font-weight: bold;">Tags:</span>
-        <ul class="tag-ul" style="margin: 0.2rem;">
-        </ul>
-        {% assign sorted_page_tags = page.tags | sort %}
-        {% for tag in sorted_page_tags %}
-            <li class="tag" style="margin: 0.2rem;">
-                <a href="/tag/{{ tag }}">{{ tag | replace: "-", " " }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+
+<p class="post-created-by">
+  <strong>Created By:</strong> {{ page.post_created_by }}
+</p>
+
+<p class="post-last-edited">
+  <strong>Last Edited On:</strong> {{ page.last_modified_at | date: site.events_date_format }}
+</p>
+
+<div class="post-content">
+  <div class="post-content-inner">{{ content }}</div>
 </div>
-{% endif %}
-<div class="post_top_boxes_container">
-    <div class="post_top_box post_top_box_authorship">
-        <h2>Authorship</h2>
-        <p style="font-weight: bold; margin: 0rem;">
-            <strong>Created By:</strong> {{ page.post_created_by }}
-        </p>
-        <p style="font-weight: bold; margin: 0rem;">
-            <strong>Created On:</strong> {{ page.date | date: site.events_date_format }}
-        </p>
-        {% if page.post_created_by != page.post_last_edited_by %}
-            <p style="font-weight: bold; margin: 0rem;">
-                <strong>Last Edited By:</strong> {{ page.post_last_edited_by }}
-            </p>
-            <p style="font-weight: bold; margin: 0rem;">
-                <strong>Last Edited On:</strong> {{ page.last_modified_at | date: site.events_date_format }}
-            </p>
-        {% else %}
-            <p style="font-weight: bold; margin: 0rem;">
-                <strong>Last Edited On:</strong> {{ page.last_modified_at | date: site.events_date_format }}
-            </p>
-        {% endif %}
-    </div>
-</div>
-<div class="post-content">{{ content }}</div>
 {% if page.post_images and page.post_images.size > 0 %}
-    <div class="post-gallery">
+    <div class="post-gallery-box">
         <h2>Gallery</h2>
         <div class="post-gallery-grid">
             {% for image in page.post_images %}
