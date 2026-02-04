@@ -9,11 +9,12 @@ layout: default
 </div>
 <h1 id="homepage_title_text">{{ site.data.all_council_info_data.council_info.council_name }} Council</h1>
 <div style="margin: 0 auto">
-    <p class="homepage-tagline">
-        "{{
-        site.data.all_council_info_data.council_website_settings.homepage_tagline
-        }}"
-    </p>
+    {% assign tagline = site.data.all_council_info_data.council_website_settings.homepage_tagline | strip %}
+    {% if tagline != "" %}
+        <p class="homepage-tagline">
+            "{{ tagline }}"
+        </p>
+    {% endif %}
     <p style="text-align: center; max-width: 34rem; margin: 0 auto">
         {{
         site.data.all_council_info_data.council_website_settings.homepage_description
@@ -21,10 +22,9 @@ layout: default
     </p>
 </div>
 {% if site.homepage.announcements.show_latest %}
-    <h2>Latest Announcement</h2>
-    {% assign latest_announcement = site.announcements | sort: 'sent_at' | reverse |
-    first %}
+    {% assign latest_announcement = site.announcements | sort: 'sent_at' | reverse | first %}
     {% if latest_announcement %}
+        <h2>Latest Announcement</h2>
         <div class="latest-announcement">
             <div class="announcement-content">
                 <p class="announcement-date">
@@ -55,12 +55,12 @@ layout: default
     {% include announcements_list.html
     limit=site.homepage.announcements.number_of_recent_to_show %}
 {% endif %}
-<h2>Latest Posts</h2>
-{% include post_list.html type_to_show="upcoming" limit=2 %}
-{% if
-    site.homepage.parishes.show_section %}
-    {% if
-        site.data.all_council_info_data.council_parishes.size == 1 %}
+{% if site.posts.size > 0 %}
+    <h2>Latest Posts</h2>
+    {% include post_list.html type_to_show="upcoming" limit=2 %}
+{% endif %}
+{% if site.homepage.parishes.show_section and site.data.all_council_info_data.council_parishes.size > 0 %}
+    {% if site.data.all_council_info_data.council_parishes.size == 1 %}
         <h2>Our Parish</h2>
     {% else %}
         <h2>Our Parishes</h2>

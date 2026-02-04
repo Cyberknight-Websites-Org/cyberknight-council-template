@@ -190,9 +190,12 @@
                                     </div>
                                 </p>
                                 <li>Last updated on {{ site.time | date: "%B %d, %Y" }}</li>
-                                <li>
-                                    Contact us at&nbsp;<a href="mailto:{{ site.data.all_council_info_data.council_info.council_public_email }}">{{ site.data.all_council_info_data.council_info.council_public_email }}</a>
-                                </li>
+                                {% assign council_email = site.data.all_council_info_data.council_info.council_public_email | strip %}
+                                {% if council_email != "" %}
+                                    <li>
+                                        Contact us at&nbsp;<a href="mailto:{{ council_email }}">{{ council_email }}</a>
+                                    </li>
+                                {% endif %}
                                 <li>
                                     Made by&nbsp;<a href="https://www.cyberknight-websites.com/">Cyberknight Inc</a>
                                 </li>
