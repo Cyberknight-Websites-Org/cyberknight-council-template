@@ -1,0 +1,15 @@
+name: Trigger Build Webhook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send build webhook
+        run: |
+          curl -X POST "https://webhooks.cyberknight-websites.com/hooks/build-all-council-websites"
