@@ -6,8 +6,13 @@ get_timestamp() {
 }
 
 # Set up logging
-LOG_DIR="/home/julian/logs/cyberknight-council-template"
-mkdir -p "$LOG_DIR"
+# Use /home/julian/logs if it exists and is writable, otherwise use current directory
+if [ -w "/home/julian/logs" ] || mkdir -p "/home/julian/logs/cyberknight-council-template" 2>/dev/null; then
+  LOG_DIR="/home/julian/logs/cyberknight-council-template"
+else
+  LOG_DIR="./logs"
+  mkdir -p "$LOG_DIR"
+fi
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="$LOG_DIR/build_${TIMESTAMP}.log"
 
