@@ -248,7 +248,12 @@ begin
     config_content = File.read(config_path)
 
     council_site_url = all_council_info_data['council_website_settings']['website_url']
+    council_name = all_council_info_data['council_info']['council_name']
+    council_number = all_council_info_data['council_info']['council_number']
+    council_title = "Knights of Columbus: #{council_name} Council ##{council_number}"
+
     updated_content = config_content.gsub(/^url: .*$/, "url: #{council_site_url}")
+    updated_content = updated_content.gsub(/^title: .*$/, "title: '#{council_title}'")
 
     File.write(config_path, updated_content)
     puts "Updated #{config_path}"
