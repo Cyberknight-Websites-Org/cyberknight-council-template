@@ -12,9 +12,12 @@ layout: default
   <strong>Last Edited On:</strong> {{ page.last_modified_at | date: site.events_date_format }}
 </p>
 
+{% assign stripped_content = content | strip %}
+{% if stripped_content != "" %}
 <div class="post-content">
   <div class="post-content-inner">{{ content }}</div>
 </div>
+{% endif %}
 {% if page.post_images and page.post_images.size > 0 %}
     <div class="post-gallery-box">
         <h2>Gallery</h2>
