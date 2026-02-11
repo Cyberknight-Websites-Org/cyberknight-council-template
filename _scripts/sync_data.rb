@@ -156,6 +156,9 @@ begin
       file.puts "post_last_edited_at: #{post_last_edited_at_unixtime}"
       file.puts "post_last_edited_by: \"#{post_last_edited_by}\""
 
+      # Add opengraph image URL if available
+      file.puts "opengraph_image_url: \"#{post['opengraph_image_url']}\"" if post['opengraph_image_url']
+
       # Add post images sorted by order
       if post['post_images'] && !post['post_images'].empty?
         sorted_images = post['post_images'].sort_by { |img| img['order'] }
