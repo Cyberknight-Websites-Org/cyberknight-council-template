@@ -38,9 +38,9 @@
         {% if page.event_flyer and page.event_flyer.thumbnail_url %}
             <meta property="og:image" content="{{ page.event_flyer.thumbnail_url }}">
             <meta name="twitter:image" content="{{ page.event_flyer.thumbnail_url  }}">
-        {% elsif page.post_images and page.post_images.size > 0 and page.post_images[0].thumbnail_url %}
-            <meta property="og:image" content="{{ page.post_images[0].thumbnail_url }}">
-            <meta name="twitter:image" content="{{ page.post_images[0].thumbnail_url }}">
+        {% elsif page.opengraph_image_url %}
+            <meta property="og:image" content="{{ page.opengraph_image_url }}">
+            <meta name="twitter:image" content="{{ page.opengraph_image_url }}">
         {% else %}
             <meta property="og:image"
                   content="{{ site.data.all_council_info_data.council_info.council_opengraph_url }}">
