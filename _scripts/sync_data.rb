@@ -225,6 +225,9 @@ begin
         # Include author if it exists
         file.puts "author: #{escape_html_for_yaml(announcement['author'])}" if announcement['author']
 
+        # Add opengraph image URL if available
+        file.puts "opengraph_image_url: \"#{announcement['opengraph_image_url']}\"" if announcement['opengraph_image_url']
+
         file.puts "permalink: /announcements/#{announcement['announcement_id']}"
 
         file.puts '---'
