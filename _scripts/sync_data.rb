@@ -143,8 +143,8 @@ begin
     post_last_edited_at_localized = tz.to_local(Time.at(post_last_edited_at_unixtime))
     post_last_edited_by = post_edit_log[-1]['member_name']
 
-    filename = "_posts/#{post_created_at_localized.strftime('%Y-%m-%d')}-#{post['post_title'].downcase.gsub(' ',
-                                                                                                            '_')}.md"
+    sanitized_post_title = post['post_title'].downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(/^_|_$/, '')
+    filename = "_posts/#{post_created_at_localized.strftime('%Y-%m-%d')}-#{sanitized_post_title}.md"
     File.open(filename, 'w') do |file|
       file.puts '---'
       file.puts 'layout: post'
