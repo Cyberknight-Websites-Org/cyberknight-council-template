@@ -28,6 +28,31 @@ begin
   all_council_info_data = JSON.parse(all_council_info_api_response)
   api_duration = Time.now - api_start
 
+  # Custom site injection: if a generated zip URL is present in the API response,
+  # apply the deletion manifest and extract the agent-generated custom files.
+  # Standard builds skip this block entirely.
+  zip_url = all_council_info_data.dig('council_website_settings', 'website_assets_zip_url')
+  if zip_url && !zip_url.empty?
+    puts "Custom site detected — applying deletion manifest..."
+    require 'fileutils'
+    require 'tempfile'
+
+    FileUtils.rm_rf('_layouts')
+    FileUtils.rm_rf('_sass')
+    FileUtils.rm_f('assets/css/main.scss')
+    %w[index.md events.md posts.md announcements.md].each { |f| FileUtils.rm_f(f) }
+    Dir.glob('_includes/*').reject { |f| File.basename(f) == 'image_dialog.html' }.each { |f| FileUtils.rm_f(f) }
+
+    puts "Downloading custom files from #{zip_url}..."
+    Tempfile.create(['assets', '.zip']) do |tmp|
+      tmp.binmode
+      URI.open(zip_url, 'rb') { |r| tmp.write(r.read) }
+      tmp.flush
+      system("unzip -o #{tmp.path} -d .") || raise('unzip failed')
+    end
+    puts 'Custom files extracted.'
+  end
+
   File.open('_data/all_council_info_data.json', 'w') do |f|
     f.write(all_council_info_data.to_json)
   end
