@@ -25,7 +25,12 @@ module CyberknightSitemap
           next if doc.data["sitemap"] == false
 
           loc = base_url + clean_url(doc.url)
-          lastmod = lastmod_for(doc.data["last_modified_at"] || doc.data["date"])
+          # Prefer last_modified_at only if it's already a resolved value (Time/Date/String).
+          # jekyll-last-modified-at stores a lazy Determinator object that triggers
+          # expensive file/git I/O when coerced — skip it if it's not a known type.
+          lm = doc.data["last_modified_at"]
+          lm = nil unless lm.is_a?(Time) || lm.is_a?(Date) || lm.is_a?(String)
+          lastmod = lastmod_for(lm) || lastmod_for(doc.data["date"])
           entries << url_entry(loc, lastmod)
         end
       end
@@ -72,6 +77,10 @@ module CyberknightSitemap
         value.strftime("%Y-%m-%d")
       when String
         Time.parse(value).utc.strftime("%Y-%m-%dT%H:%M:%S+00:00") rescue nil
+      else
+        # Handle lazy objects like Jekyll::LastModifiedAt::Determinator
+        # by coercing to string then parsing
+        Time.parse(value.to_s).utc.strftime("%Y-%m-%dT%H:%M:%S+00:00") rescue nil
       end
     end
 
