@@ -1,21 +1,21 @@
 ---
 ---
 
-@import "announcements";
-@import "animation";
-@import "moonwalk";
-@import "top-bar";
-@import "scrollbar";
-@import "dialog";
-@import "subscribe";
-@import "text-font";
-@import "desktop";
-@import "colors";
-@import "ios";
-@import "android";
-@import "links";
-@import "default/links";
-@import "default/boxes";
+@use "announcements";
+@use "animation";
+@use "moonwalk";
+@use "top-bar";
+@use "scrollbar";
+@use "dialog";
+@use "subscribe";
+@use "text-font";
+@use "desktop";
+@use "colors";
+@use "ios";
+@use "android";
+@use "links";
+@use "default/links" as default-links;
+@use "default/boxes";
 
 {% assign w_desktop_width = site.layout.w_desktop_width %}
 
