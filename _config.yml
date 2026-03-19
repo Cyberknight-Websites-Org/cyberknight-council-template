@@ -13,7 +13,6 @@ highlighter: rouge
 sass:
   style: ':compressed'
 plugins:
-  - jekyll-sitemap
   # - jekyll-last-modified-at
   - jekyll-archives
 last-modified-at:
