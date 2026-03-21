@@ -84,34 +84,10 @@
       {% endfor %}
     ]
   };
-  const parishMapType = "{{ site.homepage.parishes.parish_map_type }}";
-
   var councilData = {
     councilNumber: "{{ site.data.all_council_info_data.council_info.council_number }}"
   };
-
-  function onNavigateOrLoad() {
-    var relativeUrl = window.location.pathname;
-    if (relativeUrl.includes("/events/")) {
-      setTimeout(initEventMap, 50);
-    } else if (parishMapType === "interactive" && (relativeUrl === "/")) {
-      setTimeout(initHomepageParishMap, 50);
-    }
-
-    // Initialize image lightbox for announcement attachments, member photos, and post galleries
-    if (relativeUrl.includes("/announcements/") || relativeUrl === "/members" || relativeUrl === "/members/" || relativeUrl.includes("/posts/")) {
-      setTimeout(dialogButtonInitializer, 50);
-    }
-
-    // Initialize newsletter form on subscribe page
-    if (relativeUrl === "/subscribe" || relativeUrl === "/subscribe/") {
-      setTimeout(initNewsletterForm, 50);
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", onNavigateOrLoad);
     </script>
     <script src="{{ '/assets/js/leaflet.js' | relative_url }}"></script>
-    <script src="{{ '/assets/js/toggle_theme.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/newsletter.js' | relative_url }}"></script>
 </head>

@@ -127,3 +127,10 @@ layout: default
         {% endif %}
     </div>
 {% endif %}
+{% if site.homepage.parishes.show_parish_map and site.homepage.parishes.parish_map_type == "interactive" %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(initHomepageParishMap, 50);
+  });
+</script>
+{% endif %}
