@@ -59,6 +59,15 @@ begin
 
   puts "Synced all council #{council_number} data to _data/all_council_info_data.json (API call took #{api_duration.round(2)}s)"
 
+  # Write website assets data file (user-uploaded images for custom sites)
+  website_assets = all_council_info_data['council_website_assets']
+  if website_assets && !website_assets.empty?
+    File.open('_data/website_assets.json', 'w') do |f|
+      f.write(website_assets.to_json)
+    end
+    puts "Wrote #{website_assets.keys.length} website asset(s) to _data/website_assets.json"
+  end
+
   website_tz = 'US/Pacific'
   tz = TZInfo::Timezone.get(website_tz)
   tz_cache = { website_tz => tz }
