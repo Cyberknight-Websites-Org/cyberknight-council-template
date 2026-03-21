@@ -40,8 +40,8 @@ begin
     FileUtils.rm_rf('_layouts')
     FileUtils.rm_rf('_sass')
     FileUtils.rm_f('assets/css/main.scss')
-    %w[index.md events.md posts.md announcements.md].each { |f| FileUtils.rm_f(f) }
-    Dir.glob('_includes/*').reject { |f| File.basename(f) == 'image_dialog.html' }.each { |f| FileUtils.rm_f(f) }
+    Dir.glob('*.md').reject { |f| f == 'README.md' }.each { |f| FileUtils.rm_f(f) }
+    Dir.glob('_includes/*').reject { |f| ['image_dialog.html', 'head.html'].include?(File.basename(f)) }.each { |f| FileUtils.rm_f(f) }
 
     puts "Downloading custom files from #{zip_url}..."
     Tempfile.create(['assets', '.zip']) do |tmp|
