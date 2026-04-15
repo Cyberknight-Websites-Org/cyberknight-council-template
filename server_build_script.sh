@@ -122,15 +122,14 @@ fi
 # Purge Cloudflare cache
 echo "Purging Cloudflare cache for council-$COUNCIL_NUMBER..."
 STEP_START=$(get_timestamp)
-doppler run --project cyberknight-s3-sync --config prd -- \
-  sh -c 'curl -s -o /dev/null -w "%{http_code}" -X POST \
-    "https://api.cloudflare.com/client/v4/zones/9dbd179caf99bb5fd469db1545fbb431/purge_cache" \
-    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-    -H "Content-Type: application/json" \
-    --data "{\"prefixes\": [\"council-'"$COUNCIL_NUMBER"'.cyberknight-websites.com/\"]}"'
-CF_HTTP_CODE=$?
+CF_TOKEN=$(doppler secrets get CLOUDFLARE_API_TOKEN --project cyberknight-s3-sync --config prd --plain)
+CF_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  "https://api.cloudflare.com/client/v4/zones/9dbd179caf99bb5fd469db1545fbb431/purge_cache" \
+  -H "Authorization: Bearer $CF_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data "{\"prefixes\": [\"council-$COUNCIL_NUMBER.cyberknight-websites.com/\"]}")
 PURGE_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
-echo "  → Cache purge completed in ${PURGE_TIME}s"
+echo "  → Cache purge HTTP $CF_HTTP_CODE completed in ${PURGE_TIME}s"
 
 # Calculate build duration
 END_TIME=$(get_timestamp)
@@ -147,4 +146,3 @@ echo "  3. Sync council data:       ${SYNC_TIME}s"
 echo "  4. Jekyll build:            ${BUILD_TIME}s"
 echo "  5. S3 sync:                 ${S3_TIME}s"
 echo "  6. Cloudflare cache purge:  ${PURGE_TIME}s"
-
