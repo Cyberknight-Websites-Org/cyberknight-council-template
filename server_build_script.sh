@@ -26,11 +26,11 @@ echo "=== Build started at $(date) ==="
 # parse arguments KEY=VALUE
 while [ $# -gt 0 ]; do
   case "$1" in
-    *=*)
-      varname=$(echo "$1" | cut -d= -f1)
-      varvalue=$(echo "$1" | cut -d= -f2-)
-      eval "$varname=\"$varvalue\""
-      ;;
+  *=*)
+    varname=$(echo "$1" | cut -d= -f1)
+    varvalue=$(echo "$1" | cut -d= -f2-)
+    eval "$varname=\"$varvalue\""
+    ;;
   esac
   shift
 done
@@ -41,8 +41,9 @@ if [ -z "$JEKYLL_DIR" ]; then
   exit 1
 fi
 if [ -z "$NGINX_DIR" ]; then
-  echo "NGINX_DIR is not set. Exiting."
-  exit 1
+  # NGINX_DIR is no longer used for deployment but is kept in the signature
+  # for backward compatibility with webhook callers. Log a warning and continue.
+  echo "WARNING: NGINX_DIR is not set. This is expected — deployment now goes to S3."
 fi
 if [ -z "$JEKYLL_BUILDER_IMAGE" ]; then
   echo "JEKYLL_BUILDER_IMAGE is not set. Exiting."
@@ -55,8 +56,12 @@ fi
 
 echo "Building council: $COUNCIL_NUMBER"
 echo "JEKYLL_DIR: $JEKYLL_DIR"
-echo "NGINX_DIR: $NGINX_DIR"
+echo "NGINX_DIR: ${NGINX_DIR:-<not set>}"
 echo "JEKYLL_BUILDER_IMAGE: $JEKYLL_BUILDER_IMAGE"
+
+# --- Doppler secrets ---
+export HISTIGNORE='export DOPPLER_TOKEN*'
+export DOPPLER_TOKEN="$(pass show cyberknight/s3-sync-doppler-token)"
 
 # Remove JEKYLL_DIR if it exists and create a new one
 STEP_START=$(get_timestamp)
@@ -100,13 +105,32 @@ if [ $DOCKER_EXIT_CODE -ne 0 ]; then
   exit 1
 fi
 
-# Copy to nginx
-echo "Copying files to nginx directory..."
+# Sync to S3
+echo "Syncing to S3..."
 STEP_START=$(get_timestamp)
-rm -rf $NGINX_DIR/council-$COUNCIL_NUMBER
-mkdir -p $NGINX_DIR/council-$COUNCIL_NUMBER
-cp -r $JEKYLL_DIR/_site/* $NGINX_DIR/council-$COUNCIL_NUMBER
-COPY_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
+doppler run --project cyberknight-s3-sync --config prd -- \
+  aws s3 sync $JEKYLL_DIR/_site/ s3://cyberknight-websites/council-$COUNCIL_NUMBER/ --delete
+S3_EXIT_CODE=$?
+S3_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
+echo "  → S3 sync completed with exit code $S3_EXIT_CODE in ${S3_TIME}s"
+
+if [ $S3_EXIT_CODE -ne 0 ]; then
+  echo "ERROR: S3 sync failed. Site may be partially deployed."
+  exit 1
+fi
+
+# Purge Cloudflare cache
+echo "Purging Cloudflare cache for council-$COUNCIL_NUMBER..."
+STEP_START=$(get_timestamp)
+doppler run --project cyberknight-s3-sync --config prd -- \
+  sh -c 'curl -s -o /dev/null -w "%{http_code}" -X POST \
+    "https://api.cloudflare.com/client/v4/zones/9dbd179caf99bb5fd469db1545fbb431/purge_cache" \
+    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+    -H "Content-Type: application/json" \
+    --data "{\"prefixes\": [\"council-'"$COUNCIL_NUMBER"'.cyberknight-websites.com/\"]}"'
+CF_HTTP_CODE=$?
+PURGE_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
+echo "  → Cache purge completed in ${PURGE_TIME}s"
 
 # Calculate build duration
 END_TIME=$(get_timestamp)
@@ -121,4 +145,6 @@ echo "  1. Cleanup directories:     ${CLEANUP_TIME}s"
 echo "  2. Git clone repository:    ${CLONE_TIME}s"
 echo "  3. Sync council data:       ${SYNC_TIME}s"
 echo "  4. Jekyll build:            ${BUILD_TIME}s"
-echo "  5. Copy to nginx:           ${COPY_TIME}s"
+echo "  5. S3 sync:                 ${S3_TIME}s"
+echo "  6. Cloudflare cache purge:  ${PURGE_TIME}s"
+
