@@ -184,7 +184,6 @@ CF_HOSTNAMES=("$CF_HOSTNAME_PRIMARY")
 if [ "$CF_HOSTNAME_DEFAULT" != "$CF_HOSTNAME_PRIMARY" ]; then
   CF_HOSTNAMES+=("$CF_HOSTNAME_DEFAULT")
 fi
-CF_PURGE_CHUNK_SIZE=100
 MAX_PARALLEL_UPLOADS=8
 
 echo "Deploying council: $COUNCIL_NUMBER"
@@ -403,47 +402,21 @@ echo "Purging Cloudflare cache..."
 
 CF_TOKEN=$(doppler secrets get CLOUDFLARE_API_TOKEN --project cyberknight-s3-sync --config prd --plain)
 
-CHANGED_URLS_FILE=$(add_temp)
-: > "$CHANGED_URLS_FILE"
+HOSTS_JSON=$(printf '%s\n' "${CF_HOSTNAMES[@]}" | jq -R . | jq -s .)
 
-for cf_host in "${CF_HOSTNAMES[@]}"; do
-  while IFS= read -r rel_path; do
-    echo "https://${cf_host}/${rel_path}" >> "$CHANGED_URLS_FILE"
-  done < "$ADDED_MODIFIED_FILE"
+PURGE_RESPONSE_FILE=$(add_temp)
 
-  while IFS= read -r rel_path; do
-    echo "https://${cf_host}/${rel_path}" >> "$CHANGED_URLS_FILE"
-  done < "$DELETED_FILE"
-done
-
-TOTAL_CHANGED=$(wc -l < "$CHANGED_URLS_FILE")
-NUM_CHUNKS=$(( (TOTAL_CHANGED + CF_PURGE_CHUNK_SIZE - 1) / CF_PURGE_CHUNK_SIZE ))
-
-PURGE_FAILED=false
-for (( i=0; i<NUM_CHUNKS; i++ )); do
-  CHUNK_START=$((i * CF_PURGE_CHUNK_SIZE))
-  CHUNK_END=$((CHUNK_START + CF_PURGE_CHUNK_SIZE))
-
-  CHUNK_JSON=$(sed -n "$((CHUNK_START + 1)),$((CHUNK_END))p" "$CHANGED_URLS_FILE" | jq -R . | jq -s .)
-
-  PURGE_RESPONSE_FILE=$(add_temp)
-
-  HTTP_CODE=$(curl -s -o "$PURGE_RESPONSE_FILE" -w "%{http_code}" \
-    -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
-    -H "Authorization: Bearer ${CF_TOKEN}" \
-    -H "Content-Type: application/json" \
-    --data "{\"files\": ${CHUNK_JSON}}")
-
-  if [ "$HTTP_CODE" != "200" ]; then
-    echo "ERROR: Cloudflare cache purge returned HTTP ${HTTP_CODE}."
-    cat "$PURGE_RESPONSE_FILE" >&2
-    PURGE_FAILED=true
-  fi
-done
+HTTP_CODE=$(curl -s -o "$PURGE_RESPONSE_FILE" -w "%{http_code}" \
+  -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+  -H "Authorization: Bearer ${CF_TOKEN}" \
+  -H "Content-Type: application/json" \
+  --data "{\"hosts\": ${HOSTS_JSON}}")
 
 PURGE_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
 
-if [ "$PURGE_FAILED" = true ]; then
+if [ "$HTTP_CODE" != "200" ]; then
+  echo "ERROR: Cloudflare cache purge returned HTTP ${HTTP_CODE}."
+  cat "$PURGE_RESPONSE_FILE" >&2
   echo "ERROR: Cloudflare cache purge failed. Exiting."
   exit 1
 fi
