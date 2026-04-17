@@ -175,14 +175,25 @@ S3_FOLDER="council-${COUNCIL_NUMBER}"
 SITE_DIR="${JEKYLL_DIR}/_site"
 MANIFEST_KEY="${S3_FOLDER}/.manifest.json"
 CF_ZONE_ID="9dbd179caf99bb5fd469db1545fbb431"
-CF_HOSTNAME="council-${COUNCIL_NUMBER}.cyberknight-websites.com"
+CF_HOSTNAME_DEFAULT="council-${COUNCIL_NUMBER}.cyberknight-websites.com"
+CF_HOSTNAME_PRIMARY=$(grep '^url:' "${JEKYLL_DIR}/_config.yml" | sed 's|^url:[[:space:]]*https\?://||' | tr -d '[:space:]')
+if [ -z "$CF_HOSTNAME_PRIMARY" ]; then
+  CF_HOSTNAME_PRIMARY="$CF_HOSTNAME_DEFAULT"
+fi
+CF_HOSTNAMES=("$CF_HOSTNAME_PRIMARY")
+if [ "$CF_HOSTNAME_DEFAULT" != "$CF_HOSTNAME_PRIMARY" ]; then
+  CF_HOSTNAMES+=("$CF_HOSTNAME_DEFAULT")
+fi
 CF_PURGE_CHUNK_SIZE=100
 MAX_PARALLEL_UPLOADS=8
 
 echo "Deploying council: $COUNCIL_NUMBER"
 echo "JEKYLL_DIR: $JEKYLL_DIR"
 echo "S3 folder: s3://${S3_BUCKET}/${S3_FOLDER}/"
-echo "CF hostname: $CF_HOSTNAME"
+echo "CF hostname (primary): $CF_HOSTNAME_PRIMARY"
+if [ ${#CF_HOSTNAMES[@]} -gt 1 ]; then
+  echo "CF hostname (also purging): $CF_HOSTNAME_DEFAULT"
+fi
 
 # ---------------------------------------------------------------------------
 # Step 4: Doppler token
@@ -395,13 +406,15 @@ CF_TOKEN=$(doppler secrets get CLOUDFLARE_API_TOKEN --project cyberknight-s3-syn
 CHANGED_URLS_FILE=$(add_temp)
 : > "$CHANGED_URLS_FILE"
 
-while IFS= read -r rel_path; do
-  echo "https://${CF_HOSTNAME}/${rel_path}" >> "$CHANGED_URLS_FILE"
-done < "$ADDED_MODIFIED_FILE"
+for cf_host in "${CF_HOSTNAMES[@]}"; do
+  while IFS= read -r rel_path; do
+    echo "https://${cf_host}/${rel_path}" >> "$CHANGED_URLS_FILE"
+  done < "$ADDED_MODIFIED_FILE"
 
-while IFS= read -r rel_path; do
-  echo "https://${CF_HOSTNAME}/${rel_path}" >> "$CHANGED_URLS_FILE"
-done < "$DELETED_FILE"
+  while IFS= read -r rel_path; do
+    echo "https://${cf_host}/${rel_path}" >> "$CHANGED_URLS_FILE"
+  done < "$DELETED_FILE"
+done
 
 TOTAL_CHANGED=$(wc -l < "$CHANGED_URLS_FILE")
 NUM_CHUNKS=$(( (TOTAL_CHANGED + CF_PURGE_CHUNK_SIZE - 1) / CF_PURGE_CHUNK_SIZE ))
