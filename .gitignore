@@ -15,3 +15,4 @@ Gemfile.lock
 assets/opengraph/opengraph-website-title.png
 _announcements/*
 robots.txt
+logs
