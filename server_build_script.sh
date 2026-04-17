@@ -23,6 +23,9 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 START_TIME=$(get_timestamp)
 echo "=== Build started at $(date) ==="
 
+FORCE_FULL=false
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # parse arguments KEY=VALUE
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -61,7 +64,13 @@ echo "JEKYLL_BUILDER_IMAGE: $JEKYLL_BUILDER_IMAGE"
 
 # --- Doppler secrets ---
 export HISTIGNORE='export DOPPLER_TOKEN*'
-export DOPPLER_TOKEN="$(pass show cyberknight/s3-sync-doppler-token)"
+if [ -z "$DOPPLER_TOKEN" ]; then
+  export DOPPLER_TOKEN="$(pass show cyberknight/s3-sync-doppler-token)"
+  if [ -z "$DOPPLER_TOKEN" ]; then
+    echo "ERROR: Could not retrieve Doppler token from pass. Exiting."
+    exit 1
+  fi
+fi
 
 # Remove JEKYLL_DIR if it exists and create a new one
 STEP_START=$(get_timestamp)
@@ -105,31 +114,28 @@ if [ $DOCKER_EXIT_CODE -ne 0 ]; then
   exit 1
 fi
 
-# Sync to S3
-echo "Syncing to S3..."
+# Deploy to S3 + Cloudflare (manifest-based diff deploy)
+echo "Deploying to S3..."
 STEP_START=$(get_timestamp)
-doppler run --project cyberknight-s3-sync --config prd -- \
-  aws s3 sync $JEKYLL_DIR/_site/ s3://cyberknight-websites/council-$COUNCIL_NUMBER/ --delete
-S3_EXIT_CODE=$?
-S3_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
-echo "  → S3 sync completed with exit code $S3_EXIT_CODE in ${S3_TIME}s"
-
-if [ $S3_EXIT_CODE -ne 0 ]; then
-  echo "ERROR: S3 sync failed. Site may be partially deployed."
-  exit 1
+DEPLOY_EXTRA_ARGS=""
+if [ "$FORCE_FULL" = "true" ]; then
+  DEPLOY_EXTRA_ARGS="FORCE_FULL=true"
 fi
 
-# Purge Cloudflare cache
-echo "Purging Cloudflare cache for council-$COUNCIL_NUMBER..."
-STEP_START=$(get_timestamp)
-CF_TOKEN=$(doppler secrets get CLOUDFLARE_API_TOKEN --project cyberknight-s3-sync --config prd --plain)
-CF_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-  "https://api.cloudflare.com/client/v4/zones/9dbd179caf99bb5fd469db1545fbb431/purge_cache" \
-  -H "Authorization: Bearer $CF_TOKEN" \
-  -H "Content-Type: application/json" \
-  --data "{\"prefixes\": [\"council-$COUNCIL_NUMBER.cyberknight-websites.com/\"]}")
-PURGE_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
-echo "  → Cache purge HTTP $CF_HTTP_CODE completed in ${PURGE_TIME}s"
+"$SCRIPT_DIR/deploy.sh" \
+  COUNCIL_NUMBER="$COUNCIL_NUMBER" \
+  JEKYLL_DIR="$JEKYLL_DIR" \
+  JEKYLL_BUILDER_IMAGE="$JEKYLL_BUILDER_IMAGE" \
+  NGINX_DIR="${NGINX_DIR:-}" \
+  $DEPLOY_EXTRA_ARGS
+DEPLOY_EXIT_CODE=$?
+DEPLOY_TIME=$(perl -e "printf '%.2f', $(get_timestamp) - $STEP_START")
+echo "  → Deploy completed with exit code $DEPLOY_EXIT_CODE in ${DEPLOY_TIME}s"
+
+if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
+  echo "ERROR: Deploy failed. Exiting."
+  exit 1
+fi
 
 # Calculate build duration
 END_TIME=$(get_timestamp)
@@ -144,5 +150,4 @@ echo "  1. Cleanup directories:     ${CLEANUP_TIME}s"
 echo "  2. Git clone repository:    ${CLONE_TIME}s"
 echo "  3. Sync council data:       ${SYNC_TIME}s"
 echo "  4. Jekyll build:            ${BUILD_TIME}s"
-echo "  5. S3 sync:                 ${S3_TIME}s"
-echo "  6. Cloudflare cache purge:  ${PURGE_TIME}s"
+echo "  5. Deploy:                  ${DEPLOY_TIME}s"
