@@ -4,6 +4,7 @@ theme_config:
   appearance: auto
   date_format: '%B %d %Y'
 exclude:
+  - CLAUDE.md
   - server_build_script.sh
   - README.md
   - Dockerfile
