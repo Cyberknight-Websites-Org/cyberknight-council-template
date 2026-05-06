@@ -1,5 +1,8 @@
 ---
 layout: default
+agent_description: >-
+  Explains how to join the Knights of Columbus council. Contains the KoC
+  membership QR code and instructions to email the council with contact info.
 ---
 
 # Join
