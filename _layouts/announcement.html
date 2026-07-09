@@ -101,18 +101,18 @@ layout: default
 
     <div class="form-group">
       <label for="reply-email">
-        Email <span class="required-indicator" aria-hidden="true">*</span>
+        Email
       </label>
       <input
         type="email"
         id="reply-email"
         name="email"
         maxlength="254"
-        required
         autocomplete="email"
-        aria-required="true"
         placeholder="your.email@example.com"
+        aria-describedby="reply-email-hint"
       />
+      <span id="reply-email-hint" class="field-hint">Optional</span>
     </div>
 
     <div class="form-group">
