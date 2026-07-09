@@ -9,6 +9,7 @@
 #   /assets/css/main.css
 #   /assets/js/leaflet.js
 #   /assets/js/newsletter.js
+#   /assets/js/announcement-reply.js
 #
 # Also deletes main.css.map (sourcemaps should not ship to production).
 
@@ -24,6 +25,7 @@ Jekyll::Hooks.register :site, :post_write do |site|
     assets/css/main.css
     assets/js/leaflet.js
     assets/js/newsletter.js
+    assets/js/announcement-reply.js
   ]
 
   targets.each do |rel_path|
