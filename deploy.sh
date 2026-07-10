@@ -184,8 +184,6 @@ CF_HOSTNAMES=("$CF_HOSTNAME_PRIMARY")
 if [ "$CF_HOSTNAME_DEFAULT" != "$CF_HOSTNAME_PRIMARY" ]; then
   CF_HOSTNAMES+=("$CF_HOSTNAME_DEFAULT")
 fi
-MAX_PARALLEL_UPLOADS=8
-
 echo "Deploying council: $COUNCIL_NUMBER"
 echo "JEKYLL_DIR: $JEKYLL_DIR"
 echo "S3 folder: s3://${S3_BUCKET}/${S3_FOLDER}/"
@@ -322,25 +320,10 @@ fi
 
 STEP_START=$(get_timestamp)
 
-echo "Uploading ${ADDED_COUNT} file(s) to S3..."
-upload_pids=()
-upload_failed=false
-
-while IFS= read -r rel_path; do
-  aws s3 cp "${SITE_DIR}/${rel_path}" "s3://${S3_BUCKET}/${S3_FOLDER}/${rel_path}" --region us-east-1 &
-  upload_pids+=($!)
-  if [ ${#upload_pids[@]} -ge "$MAX_PARALLEL_UPLOADS" ]; then
-    wait "${upload_pids[0]}" || upload_failed=true
-    upload_pids=("${upload_pids[@]:1}")
-  fi
-done < "$ADDED_MODIFIED_FILE"
-
-for pid in "${upload_pids[@]}"; do
-  wait "$pid" || upload_failed=true
-done
-
-if [ "$upload_failed" = true ]; then
-  echo "ERROR: One or more uploads failed. Exiting."
+echo "Uploading ${ADDED_COUNT} changed file(s) to S3..."
+aws s3 sync "${SITE_DIR}/" "s3://${S3_BUCKET}/${S3_FOLDER}/" --region us-east-1 --size-only --no-delete
+if [ $? -ne 0 ]; then
+  echo "ERROR: S3 sync failed. Exiting."
   exit 1
 fi
 
@@ -354,11 +337,12 @@ if [ "$DELETED_COUNT" -gt 0 ]; then
   echo "Deleting ${DELETED_COUNT} file(s) from S3..."
   delete_pids=()
   delete_failed=false
+  MAX_PARALLEL_DELETES=8
 
   while IFS= read -r rel_path; do
     aws s3 rm "s3://${S3_BUCKET}/${S3_FOLDER}/${rel_path}" --region us-east-1 &
     delete_pids+=($!)
-    if [ ${#delete_pids[@]} -ge "$MAX_PARALLEL_UPLOADS" ]; then
+    if [ ${#delete_pids[@]} -ge "$MAX_PARALLEL_DELETES" ]; then
       wait "${delete_pids[0]}" || delete_failed=true
       delete_pids=("${delete_pids[@]:1}")
     fi

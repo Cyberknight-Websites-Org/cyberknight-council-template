@@ -263,6 +263,7 @@ begin
         file.puts "opengraph_image_url: \"#{announcement['opengraph_image_url']}\"" if announcement['opengraph_image_url']
 
         file.puts "permalink: /announcements/#{announcement['announcement_id']}"
+        file.puts "can_reply: #{announcement['can_reply'] == true}"
 
         file.puts '---'
       end

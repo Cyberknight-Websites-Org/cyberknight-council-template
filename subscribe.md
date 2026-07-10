@@ -2,6 +2,10 @@
 layout: subscribe
 title: Subscribe to Our Updates
 description: Stay informed with updates from our Knights of Columbus Council. Subscribe to receive news, event announcements, and community updates.
+agent_description: >-
+  Newsletter and announcement subscription page. Describes what subscribers
+  receive: monthly newsletters, announcement emails, and occasional text
+  reminders.
 ---
 
 <!-- ## Stay Connected with Our Council -->
