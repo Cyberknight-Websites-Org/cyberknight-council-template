@@ -10,6 +10,8 @@
   url: /join
 - title: Subscribe
   url: /subscribe
+- title: Prayer Requests
+  url: /prayer-requests
 - title: Members
   url: /members
 - title: Login
