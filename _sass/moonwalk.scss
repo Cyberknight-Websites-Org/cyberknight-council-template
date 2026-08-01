@@ -168,6 +168,10 @@ p code, li code {
 .credit-links {
   margin: 0 0.1rem;
   font-size: 0.9rem;
+
+  .portal-login-link {
+    flex-basis: 100%;
+  }
 }
 
 // KB Club css stuff
