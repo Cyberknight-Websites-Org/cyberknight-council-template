@@ -1,6 +1,21 @@
 require 'open-uri'
 require 'json'
+require 'digest'
 require 'optparse'
+
+FILENAME_BASENAME_BYTE_LIMIT = 255
+FILENAME_HASH_LENGTH = 12
+
+# Retain legacy filenames unless their basename exceeds the filesystem limit.
+def content_filename(date_prefix, sanitized_title)
+  legacy_basename = "#{date_prefix}-#{sanitized_title}.md"
+  return legacy_basename if legacy_basename.bytesize <= FILENAME_BASENAME_BYTE_LIMIT
+
+  suffix = "-#{Digest::SHA256.hexdigest(legacy_basename)[0, FILENAME_HASH_LENGTH]}.md"
+  title_byte_limit = FILENAME_BASENAME_BYTE_LIMIT - "#{date_prefix}-".bytesize - suffix.bytesize
+  truncated_title = sanitized_title.to_s.byteslice(0, title_byte_limit)
+  "#{date_prefix}-#{truncated_title}#{suffix}"
+end
 require 'tzinfo'
 require 'time'
 
@@ -73,10 +88,7 @@ begin
   tz_cache = { website_tz => tz }
 
   def escape_html_for_yaml(content)
-    return '""' if content.nil? || content.empty?
-
-    escaped = content.gsub('"', '\\"') # Escape double quotes
-    "\"#{escaped}\""
+    content.to_s.to_json
   end
 
   Dir.mkdir('_events') unless Dir.exist?('_events')
@@ -87,10 +99,10 @@ begin
     tz_cache[event_timezone] ||= TZInfo::Timezone.get(event_timezone)
     event_tz = tz_cache[event_timezone]
     event_start_time_localized = event_tz.to_local(Time.at(event['event_start_time']))
-    sanitized_event_name = event['event_name'].downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(
+    sanitized_event_name = event['event_name'].to_s.downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(
       /^_|_$/, ''
     )
-    filename = "_events/#{event_start_time_localized.strftime('%Y-%m-%d')}-#{sanitized_event_name}.md"
+    filename = "_events/#{content_filename(event_start_time_localized.strftime('%Y-%m-%d'), sanitized_event_name)}"
     location_address_original = event['location_address'] || ''
     location_address_str = escape_html_for_yaml(location_address_original)
     # Split strictly on commas, trim whitespace, ignore empty parts
@@ -177,8 +189,8 @@ begin
     post_last_edited_at_localized = tz.to_local(Time.at(post_last_edited_at_unixtime))
     post_last_edited_by = post_edit_log[-1]['member_name']
 
-    sanitized_post_title = post['post_title'].downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(/^_|_$/, '')
-    filename = "_posts/#{post_created_at_localized.strftime('%Y-%m-%d')}-#{sanitized_post_title}.md"
+    sanitized_post_title = post['post_title'].to_s.downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(/^_|_$/, '')
+    filename = "_posts/#{content_filename(post_created_at_localized.strftime('%Y-%m-%d'), sanitized_post_title)}"
     File.open(filename, 'w') do |file|
       file.puts '---'
       file.puts 'layout: post'
@@ -225,10 +237,10 @@ begin
       sent_at_localized = tz.to_local(Time.at(announcement['sent_at']))
       # Use email subject if available, otherwise create generic title
       title_for_filename = announcement['email_subject'] || announcement['sent_at'].to_s
-      sanitized_title = title_for_filename.downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(
+      sanitized_title = title_for_filename.to_s.downcase.gsub(/[^a-z0-9\s]/, '').gsub(/\s+/, '_').gsub(/_+/, '_').gsub(
         /^_|_$/, ''
       )
-      filename = "_announcements/#{sent_at_localized.strftime('%Y-%m-%d')}-#{sanitized_title}.md"
+      filename = "_announcements/#{content_filename(sent_at_localized.strftime('%Y-%m-%d'), sanitized_title)}"
 
       # Create announcement markdown file
       File.open(filename, 'w') do |file|
